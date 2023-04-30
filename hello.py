@@ -7,19 +7,22 @@ from bs4 import BeautifulSoup
 import json
 import time
 import csv
+import pandas as pd
 
+url = "https://www.dst.dk/da/Statistik/emner/befolkning-og-valg/navne/HvorMange"
 PATH = "C:\Program Files (x86)\ChromeDriver\chromedriver.exe"
 driver = webdriver.Chrome(PATH)
 # The browser we use is chrome and the driver is located in PATH
 
-driver.get("https://www.dst.dk/da/Statistik/emner/befolkning-og-valg/navne/HvorMange")
+
+driver.get(url)
 
 
 cookieButton = driver.find_element_by_id("cookieDst-reject")
 searchInput = driver.find_element_by_id("navnesognamefornavn")
 searchButton = driver.find_element_by_id("navnesognamesog")
 results = driver.find_element_by_id("navnesognameresult")
-clear = driver.find_element_by_id("navnesognameryd")
+clearButton = driver.find_element_by_id("navnesognameryd")
 resultList = []
 
 cookieButton.click()
@@ -32,29 +35,26 @@ with open("C:/codetemp/python/names.csv", "r", encoding="UTF-8") as csv_read_fil
         searchButton.click()
 
         try:
-            main = WebDriverWait(driver, 10).until(
+            table = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "table"))
             )  # wait until table is available
 
-            data = main.find_elements_by_tag_name("td")
-            for cell in data:
-                resultList.append(cell.text)
-                # for every cell add the text to the result list
-            clear.click()
+            tableData = [
+                [cell.text for cell in row.find_elements_by_tag_name("td")]
+                for row in table.find_elements_by_tag_name("tr")
+            ][1:]
 
-            with open(
-                "data.csv", mode="a", newline="", encoding="UTF-8"
-            ) as csv_write_file:
-                csv_writer = csv.writer(
-                    csv_write_file,
-                    delimiter=",",
-                    quotechar='"',
-                    quoting=csv.QUOTE_MINIMAL,
-                )
+            tableHeader = [
+                [cell.text for cell in row.find_elements_by_tag_name("th")]
+                for row in table.find_elements_by_tag_name("tr")
+            ][0]
 
-                # add a row of information from the result list
-                csv_writer.writerow(resultList)
-                resultList.clear()
+            zippedList = [dict(zip(tableHeader, t)) for t in tableData]
+
+            resultList.append(zippedList)
+
+            clearButton.click()
 
         except:
             print("Something went wrong")
+print(json.dumps(resultList, indent=4, ensure_ascii=False))
