@@ -79,17 +79,17 @@ with open("C:/codetemp/python/names.csv", "r", encoding="UTF-8") as csv_read_fil
                 if len(values) == 1:
                     new_data[name] = {
                         "gender": values[0].get("gender", ""),
-                        "peopleTotal": str(int(values[0].get("2023", 0))),
-                        "trendTotal": str(int(values[0].get("trend", 0))),
+                        "totalPeople": str(int(values[0].get("2023", 0))),
+                        "totalTrend": str(int(values[0].get("trend", 0))),
                         (
-                            "malesTotal"
+                            "maleCount"
                             if values[0].get("gender", "") == "male"
-                            else "femalesTotal"
+                            else "femaleCount"
                         ): str(int(values[0].get("2023", 0))),
                         (
-                            "trendMales"
+                            "trendMaleCount"
                             if values[0].get("gender", "") == "male"
-                            else "trendFemales"
+                            else "trendFemaleCount"
                         ): str(int(values[0].get("trend", 0))),
                     }
                 else:
@@ -98,31 +98,31 @@ with open("C:/codetemp/python/names.csv", "r", encoding="UTF-8") as csv_read_fil
                             values[0].get("gender", 0),
                             values[1].get("gender", 0),
                         ],
-                        "peopleTotal": str(
+                        "totalPeople": str(
                             int(values[0]["2023"]) + int(values[1]["2023"])
                         ),
-                        "trendTotal": str(
+                        "totalTrend": str(
                             int(values[0]["trend"]) + int(values[1]["trend"])
                         ),
                         (
-                            "malesTotal"
+                            "maleCount"
                             if values[0].get("gender", "") == "male"
-                            else "femalesTotal"
+                            else "femaleCount"
                         ): str(int(values[0].get("2023", 0))),
                         (
-                            "malesTotal"
+                            "maleCount"
                             if values[1].get("gender", "") == "male"
-                            else "femalesTotal"
+                            else "femaleCount"
                         ): str(int(values[1].get("2023", 0))),
                         (
-                            "trendMales"
+                            "trendMaleCount"
                             if values[0].get("gender", "") == "male"
-                            else "trendFemales"
+                            else "trendFemaleCount"
                         ): str(int(values[0].get("trend", 0))),
                         (
-                            "trendMales"
+                            "trendMaleCount"
                             if values[1].get("gender", "") == "male"
-                            else "trendFemales"
+                            else "trendFemaleCount"
                         ): str(int(values[1].get("trend", 0))),
                     }
 
