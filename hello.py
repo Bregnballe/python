@@ -44,6 +44,8 @@ with open("C:/codetemp/python/names.csv", "r", encoding="UTF-8") as csv_read_fil
                     if cell.text.startswith("Mænd")
                     else ""
                     if cell.text.startswith("Der")
+                    else "0"
+                    if cell.text == ""
                     else cell.text
                     for cell in row.find_elements_by_tag_name("td")
                 ]
@@ -69,7 +71,62 @@ with open("C:/codetemp/python/names.csv", "r", encoding="UTF-8") as csv_read_fil
 
             data = {name[0]: zippedList}
 
-            resultList.append(data)
+            print(json.dumps(data, indent=4, ensure_ascii=False))
+
+            new_data = {}
+
+            for name, values in data.items():
+                if len(values) == 1:
+                    new_data[name] = {
+                        "gender": values[0].get("gender", ""),
+                        "peopleTotal": str(int(values[0].get("2023", 0))),
+                        "trendTotal": str(int(values[0].get("trend", 0))),
+                        (
+                            "malesTotal"
+                            if values[0].get("gender", "") == "male"
+                            else "femalesTotal"
+                        ): str(int(values[0].get("2023", 0))),
+                        (
+                            "trendMales"
+                            if values[0].get("gender", "") == "male"
+                            else "trendFemales"
+                        ): str(int(values[0].get("trend", 0))),
+                    }
+                else:
+                    new_data[name] = {
+                        "gender": [
+                            values[0].get("gender", 0),
+                            values[1].get("gender", 0),
+                        ],
+                        "peopleTotal": str(
+                            int(values[0]["2023"]) + int(values[1]["2023"])
+                        ),
+                        "trendTotal": str(
+                            int(values[0]["trend"]) + int(values[1]["trend"])
+                        ),
+                        (
+                            "malesTotal"
+                            if values[0].get("gender", "") == "male"
+                            else "femalesTotal"
+                        ): str(int(values[0].get("2023", 0))),
+                        (
+                            "malesTotal"
+                            if values[1].get("gender", "") == "male"
+                            else "femalesTotal"
+                        ): str(int(values[1].get("2023", 0))),
+                        (
+                            "trendMales"
+                            if values[0].get("gender", "") == "male"
+                            else "trendFemales"
+                        ): str(int(values[0].get("trend", 0))),
+                        (
+                            "trendMales"
+                            if values[1].get("gender", "") == "male"
+                            else "trendFemales"
+                        ): str(int(values[1].get("trend", 0))),
+                    }
+
+            resultList.append(new_data)
             # Create and append an object with the name as key and value of zippedList
 
             clearButton.click()
