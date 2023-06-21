@@ -5,11 +5,18 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import json
 import csv
+import requests
 
 url = "https://www.dst.dk/da/Statistik/emner/befolkning-og-valg/navne/HvorMange"
 PATH = "C:\Program Files (x86)\ChromeDriver\chromedriver.exe"
 driver = webdriver.Chrome(PATH)
 # The browser we use is chrome and the driver is located in PATH
+# The driver version must match the browser version
+
+
+# headers = {"Content-Type": "application/json"}
+# url = "http://localhost:3000/api/names/"
+# API headers and url
 
 
 driver.get(url)
@@ -20,6 +27,8 @@ searchInput = driver.find_element_by_id("navnesognamefornavn")
 searchButton = driver.find_element_by_id("navnesognamesog")
 results = driver.find_element_by_id("navnesognameresult")
 clearButton = driver.find_element_by_id("navnesognameryd")
+# All the html-elements we need to interact with
+
 resultList = []
 
 cookieButton.click()
@@ -34,7 +43,7 @@ with open("C:/codetemp/python/names.csv", "r", encoding="UTF-8") as csv_read_fil
         try:
             table = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "table"))
-            )  # wait until table is available
+            )  # wait until html-table is available on page
 
             tableData = [
                 [
@@ -77,31 +86,48 @@ with open("C:/codetemp/python/names.csv", "r", encoding="UTF-8") as csv_read_fil
 
             for name, values in data.items():
                 if len(values) == 1:
-                    new_data[name] = {
-                        "gender": values[0].get("gender", ""),
-                        "totalPeople": str(int(values[0].get("2023", 0))),
-                        "totalTrend": str(int(values[0].get("trend", 0))),
+                    # if there is only one row in the table ie. one gender with that name
+                    new_data = {
+                        "name": name,
+                        "male": values[0].get("gender", "") == "male",
+                        "female": values[0].get("gender", "") == "female",
+                        # the second argument on the get method is the default value if the key is not found
+                        "peopleCount": str(int(values[0].get("2023", 0))),
+                        "trendCount": str(int(values[0].get("trend", 0))),
                         (
                             "maleCount"
                             if values[0].get("gender", "") == "male"
                             else "femaleCount"
                         ): str(int(values[0].get("2023", 0))),
                         (
-                            "trendMaleCount"
+                            "femaleCount"
                             if values[0].get("gender", "") == "male"
-                            else "trendFemaleCount"
+                            else "maleCount"
+                        ): 0,
+                        # setting the count of the gender that is not represented to 0
+                        (
+                            "maleTrendCount"
+                            if values[0].get("gender", "") == "male"
+                            else "femaleTrendCount"
                         ): str(int(values[0].get("trend", 0))),
+                        (
+                            "femaleTrendCount"
+                            if values[0].get("gender", "") == "male"
+                            else "maleTrendCount"
+                        ): 0,
+                        # setting the trend count of the gender that is not represented to 0
                     }
                 else:
-                    new_data[name] = {
-                        "gender": [
-                            values[0].get("gender", 0),
-                            values[1].get("gender", 0),
-                        ],
+                    # if there are more rows
+                    new_data = {
+                        "name": name,
+                        "male": True,
+                        "female": True,
+                        # Since there are more than one gender, we know both genders are represented
                         "totalPeople": str(
                             int(values[0]["2023"]) + int(values[1]["2023"])
                         ),
-                        "totalTrend": str(
+                        "trendCount": str(
                             int(values[0]["trend"]) + int(values[1]["trend"])
                         ),
                         (
@@ -115,14 +141,14 @@ with open("C:/codetemp/python/names.csv", "r", encoding="UTF-8") as csv_read_fil
                             else "femaleCount"
                         ): str(int(values[1].get("2023", 0))),
                         (
-                            "trendMaleCount"
+                            "maleTrendCount"
                             if values[0].get("gender", "") == "male"
-                            else "trendFemaleCount"
+                            else "femaleTrendCount"
                         ): str(int(values[0].get("trend", 0))),
                         (
-                            "trendMaleCount"
+                            "maleTrendCount"
                             if values[1].get("gender", "") == "male"
-                            else "trendFemaleCount"
+                            else "femaleTrendCount"
                         ): str(int(values[1].get("trend", 0))),
                     }
 
@@ -133,4 +159,5 @@ with open("C:/codetemp/python/names.csv", "r", encoding="UTF-8") as csv_read_fil
 
         except Exception as e:
             print(f"Something went wrong: {e}")
+
 print(json.dumps(resultList, indent=4, ensure_ascii=False))
