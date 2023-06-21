@@ -92,13 +92,13 @@ with open("C:/codetemp/python/names.csv", "r", encoding="UTF-8") as csv_read_fil
                         "male": values[0].get("gender", "") == "male",
                         "female": values[0].get("gender", "") == "female",
                         # the second argument on the get method is the default value if the key is not found
-                        "peopleCount": str(int(values[0].get("2023", 0))),
-                        "trendCount": str(int(values[0].get("trend", 0))),
+                        "peopleCount": int(values[0].get("2023", 0)),
+                        "trendCount": int(values[0].get("trend", 0)),
                         (
                             "maleCount"
                             if values[0].get("gender", "") == "male"
                             else "femaleCount"
-                        ): str(int(values[0].get("2023", 0))),
+                        ): int(values[0].get("2023", 0)),
                         (
                             "femaleCount"
                             if values[0].get("gender", "") == "male"
@@ -109,7 +109,7 @@ with open("C:/codetemp/python/names.csv", "r", encoding="UTF-8") as csv_read_fil
                             "maleTrendCount"
                             if values[0].get("gender", "") == "male"
                             else "femaleTrendCount"
-                        ): str(int(values[0].get("trend", 0))),
+                        ): int(values[0].get("trend", 0)),
                         (
                             "femaleTrendCount"
                             if values[0].get("gender", "") == "male"
@@ -124,32 +124,28 @@ with open("C:/codetemp/python/names.csv", "r", encoding="UTF-8") as csv_read_fil
                         "male": True,
                         "female": True,
                         # Since there are more than one gender, we know both genders are represented
-                        "totalPeople": str(
-                            int(values[0]["2023"]) + int(values[1]["2023"])
-                        ),
-                        "trendCount": str(
-                            int(values[0]["trend"]) + int(values[1]["trend"])
-                        ),
+                        "totalPeople": int(values[0]["2023"]) + int(values[1]["2023"]),
+                        "trendCount": int(values[0]["trend"]) + int(values[1]["trend"]),
                         (
                             "maleCount"
                             if values[0].get("gender", "") == "male"
                             else "femaleCount"
-                        ): str(int(values[0].get("2023", 0))),
+                        ): int(values[0].get("2023", 0)),
                         (
                             "maleCount"
                             if values[1].get("gender", "") == "male"
                             else "femaleCount"
-                        ): str(int(values[1].get("2023", 0))),
+                        ): int(values[1].get("2023", 0)),
                         (
                             "maleTrendCount"
                             if values[0].get("gender", "") == "male"
                             else "femaleTrendCount"
-                        ): str(int(values[0].get("trend", 0))),
+                        ): int(values[0].get("trend", 0)),
                         (
                             "maleTrendCount"
                             if values[1].get("gender", "") == "male"
                             else "femaleTrendCount"
-                        ): str(int(values[1].get("trend", 0))),
+                        ): int(values[1].get("trend", 0)),
                     }
 
             resultList.append(new_data)
