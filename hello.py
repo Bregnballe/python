@@ -10,16 +10,14 @@ import requests
 url = "https://www.dst.dk/da/Statistik/emner/befolkning-og-valg/navne/HvorMange"
 PATH = "C:\Program Files (x86)\ChromeDriver\chromedriver.exe"
 driver = webdriver.Chrome(PATH)
+driver.get(url)
 # The browser we use is chrome and the driver is located in PATH
 # The driver version must match the browser version
 
 
-# headers = {"Content-Type": "application/json"}
-# url = "http://localhost:3000/api/names/"
+headers = {"Content-Type": "application/json"}
+url = "http://localhost:3000/api/names/"
 # API headers and url
-
-
-driver.get(url)
 
 
 cookieButton = driver.find_element_by_id("cookieDst-reject")
@@ -29,7 +27,21 @@ results = driver.find_element_by_id("navnesognameresult")
 clearButton = driver.find_element_by_id("navnesognameryd")
 # All the html-elements we need to interact with
 
+
+nameKey = "name"
+maleGenderKey = "maleGender"
+femaleGenderKey = "femaleGender"
+peopleCountKey = "peopleCount"
+trendCountKey = "trendCount"
+maleCountKey = "maleCount"
+femaleCountKey = "femaleCount"
+maleTrendCountKey = "maleTrendCount"
+femaleTrendCountKey = "femaleTrendCount"
+# The keys we use in the json object
+
+
 resultList = []
+# The list we will store the final json objects in
 
 cookieButton.click()
 
@@ -88,65 +100,71 @@ with open("C:/codetemp/python/names.csv", "r", encoding="UTF-8") as csv_read_fil
                 if len(values) == 1:
                     # if there is only one row in the table ie. one gender with that name
                     new_data = {
-                        "name": name,
-                        "male": values[0].get("gender", "") == "male",
-                        "female": values[0].get("gender", "") == "female",
+                        nameKey: name,
+                        maleGenderKey: values[0].get("gender", "") == "male",
+                        femaleGenderKey: values[0].get("gender", "") == "female",
                         # the second argument on the get method is the default value if the key is not found
-                        "peopleCount": int(values[0].get("2023", 0)),
-                        "trendCount": int(values[0].get("trend", 0)),
+                        peopleCountKey: int(values[0].get("2023", 0)),
+                        trendCountKey: int(values[0].get("trend", 0)),
                         (
-                            "maleCount"
+                            maleCountKey
                             if values[0].get("gender", "") == "male"
-                            else "femaleCount"
+                            else femaleCountKey
                         ): int(values[0].get("2023", 0)),
                         (
-                            "femaleCount"
+                            femaleCountKey
                             if values[0].get("gender", "") == "male"
-                            else "maleCount"
+                            else maleCountKey
                         ): 0,
                         # setting the count of the gender that is not represented to 0
                         (
-                            "maleTrendCount"
+                            maleTrendCountKey
                             if values[0].get("gender", "") == "male"
-                            else "femaleTrendCount"
+                            else femaleTrendCountKey
                         ): int(values[0].get("trend", 0)),
                         (
-                            "femaleTrendCount"
+                            femaleTrendCountKey
                             if values[0].get("gender", "") == "male"
-                            else "maleTrendCount"
+                            else maleTrendCountKey
                         ): 0,
                         # setting the trend count of the gender that is not represented to 0
                     }
                 else:
                     # if there are more rows
                     new_data = {
-                        "name": name,
-                        "male": True,
-                        "female": True,
+                        nameKey: name,
+                        maleGenderKey: True,
+                        femaleGenderKey: True,
                         # Since there are more than one gender, we know both genders are represented
-                        "totalPeople": int(values[0]["2023"]) + int(values[1]["2023"]),
-                        "trendCount": int(values[0]["trend"]) + int(values[1]["trend"]),
+                        peopleCountKey: int(values[0]["2023"]) + int(values[1]["2023"]),
+                        trendCountKey: int(values[0]["trend"])
+                        + int(values[1]["trend"]),
                         (
-                            "maleCount"
+                            maleCountKey
                             if values[0].get("gender", "") == "male"
-                            else "femaleCount"
+                            else femaleCountKey
                         ): int(values[0].get("2023", 0)),
                         (
-                            "maleCount"
+                            maleCountKey
                             if values[1].get("gender", "") == "male"
-                            else "femaleCount"
+                            else femaleCountKey
                         ): int(values[1].get("2023", 0)),
                         (
-                            "maleTrendCount"
+                            maleTrendCountKey
                             if values[0].get("gender", "") == "male"
-                            else "femaleTrendCount"
+                            else femaleTrendCountKey
                         ): int(values[0].get("trend", 0)),
                         (
-                            "maleTrendCount"
+                            maleTrendCountKey
                             if values[1].get("gender", "") == "male"
-                            else "femaleTrendCount"
+                            else femaleTrendCountKey
                         ): int(values[1].get("trend", 0)),
                     }
+
+            response = requests.post(url, headers=headers, json=new_data)
+            print(response.status_code)
+            print(response.text)
+            # sending the json object to the api
 
             resultList.append(new_data)
             # Create and append an object with the name as key and value of zippedList
